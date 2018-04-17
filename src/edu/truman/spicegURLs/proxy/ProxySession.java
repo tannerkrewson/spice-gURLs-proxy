@@ -1,8 +1,10 @@
 package edu.truman.spicegURLs.proxy;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.*;
+import java.util.Scanner;
 public class ProxySession implements Runnable {
 	
 	private Socket client;
@@ -23,6 +25,10 @@ public class ProxySession implements Runnable {
 		String url = requestHeader.substring(5);
 		url = url.substring(0, url.length()-9);
 		
+		if (url.length() == 0) {
+			throw new IOException();
+		}
+		
 		// browsers will ask for this with every page
 		if (url.equals("favicon.ico")) {
 			throw new IOException();
@@ -36,13 +42,23 @@ public class ProxySession implements Runnable {
 		return new URL(url);
 	}
 	
+	private String getResponseFromURL (URL url) throws IOException {
+		InputStream response = url.openStream();
+		Scanner scanner = new Scanner(response);
+	    String responseBody = scanner.useDelimiter("\\A").next();
+	    scanner.close();
+	    return responseBody;
+	}
+	
 	@Override
 	public void run() {
 		try {
 			URL urlToGet = getURLFromRequest();
 			
-			String message = "spice gURLs reporting for duty!\n";
-			message += urlToGet.toString();
+			String response = getResponseFromURL(urlToGet);
+			
+			String message = "";
+			message += response;
 			
 	        String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + message;
 	        client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
@@ -51,7 +67,7 @@ public class ProxySession implements Runnable {
 	        
 	        client.close();
 		} catch(Exception e) {
-			System.err.println(e);
+			e.printStackTrace(System.out);
 		}
 	}
 

@@ -16,11 +16,9 @@ public class Proxy implements Runnable {
         try {
         	this.server = new ServerSocket(this.port);
 			while (true) {
-            	Socket socket = server.accept();
-            	String message = "spice gURLs reporting for duty";
-                String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + message;
-                socket.getOutputStream().write(httpResponse.getBytes("UTF-8"));
-                socket.close();
+            	Thread t = new Thread(new ProxySession(server.accept()));
+            	t.start();
+            	
 			}
 		} catch (Exception e) {
 			System.err.println(e);

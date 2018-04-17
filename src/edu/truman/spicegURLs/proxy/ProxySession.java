@@ -13,17 +13,27 @@ public class ProxySession implements Runnable {
 		this.client = client;
 	}
 	
-	private URL getURLFromRequest() throws IOException{
+	private String[] getHeaderOfRequest() throws Exception{
 		BufferedReader inStream
 			= new BufferedReader(new InputStreamReader(client.getInputStream()));
 		
 		// parse the first line of the request that looks like this:
-		// GET /http://google.com HTTP/1.1
+		// GET /proxy/http://google.com HTTP/1.1
 		String requestHeader = inStream.readLine();
+		
+		if (!requestHeader.startsWith("GET")) {
+			throw new Exception("Bad request: " + requestHeader);
+		}
 				
-		// grab the url part only
-		String url = requestHeader.substring(5);
-		url = url.substring(0, url.length()-9);
+		return requestHeader.split(" ");
+	}
+	
+	private URL getURLFromRequest(String[] req) throws IOException{	
+		if (!req[1].startsWith("/proxy/")) {
+			throw new IOException("Ignored: " + req[1]);
+		}
+		
+		String url = req[1].substring(7);
 		
 		if (url.length() == 0) {
 			throw new IOException();
@@ -53,7 +63,9 @@ public class ProxySession implements Runnable {
 	@Override
 	public void run() {
 		try {
-			URL urlToGet = getURLFromRequest();
+			String[] requestHeader = getHeaderOfRequest();
+			
+			URL urlToGet = getURLFromRequest(requestHeader);
 			
 			String response = getResponseFromURL(urlToGet);
 			
@@ -67,7 +79,8 @@ public class ProxySession implements Runnable {
 	        
 	        client.close();
 		} catch(Exception e) {
-			e.printStackTrace(System.out);
+			System.err.println(e);
+			//e.printStackTrace(System.out);
 		}
 	}
 

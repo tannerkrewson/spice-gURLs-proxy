@@ -19,3 +19,13 @@ For validation, you could use browser or terminal (wget) to demonstrate that you
 What to submit: A pdf file containing your project report with entire source code (adequately commented) for your proxy server. A description of your multithreaded server design. Each team member's contributions. Any other additional information you would like to add. By multithreaded server it means that it should be able to serve multiple requests in parallel coming from same or different clients.
 
 Points: 10 points (project report) + 5 points (validation).
+
+
+
+TODO:
+Get modified time from google (in get response from url method)
+Get a Cache object up and running
+Handle 304
+look up examples of bad request (400)
+and 501
+

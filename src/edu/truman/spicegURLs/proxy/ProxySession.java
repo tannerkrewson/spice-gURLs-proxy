@@ -1,5 +1,6 @@
 package edu.truman.spicegURLs.proxy;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,19 +30,14 @@ public class ProxySession implements Runnable {
 		return requestHeader.split(" ");
 	}
 	
-	private URL getURLFromRequest(String[] req) throws IOException {	
+	private URL getURLFromRequest(String[] req) throws FileNotFoundException, IOException  {	
 		if (!req[1].startsWith("/proxy/")) {
-			throw new IOException("Ignored: " + req[1]);
+			throw new FileNotFoundException("Ignored: " + req[1]);
 		}
 		
 		String url = req[1].substring(7);
 		
 		if (url.length() == 0) {
-			throw new IOException();
-		}
-		
-		// browsers will ask for this with every page
-		if (url.equals("favicon.ico")) {
 			throw new IOException();
 		}
 		
@@ -53,7 +49,7 @@ public class ProxySession implements Runnable {
 		return new URL(url);
 	}
 	
-	private String getResponseFromURL (URL url) throws IOException {
+	private String getResponseFromURL (URL url) throws Exception {
 		InputStream response = url.openStream();
 		Scanner scanner = new Scanner(response);
 	    String responseBody = scanner.useDelimiter("\\A").next();
@@ -74,12 +70,20 @@ public class ProxySession implements Runnable {
 	        client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
 	        System.out.println("Received " + urlToGet + " from " + client.getInetAddress());
 	        client.close();
-	        
-		} catch (IOException e) {
-			System.err.println("HTTP/1.1 404 NOT FOUND \r\n\r\n" + e);
-			String httpResponse = "HTTP/1.1 404 Something Crazy \r\n\r\n";
+	     
+		} catch (FileNotFoundException e) {
+			String httpResponse = "HTTP/1.1 204 NO CONTENT \r\n\r\n";
 	        try {
-	        		System.out.println("Trying to send 404 to client");
+				client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
+				client.close();
+			} catch (UnsupportedEncodingException e1) {
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		} catch (IOException e) {
+			String httpResponse = "HTTP/1.1 400 BAD REQUEST \r\n\r\n";
+	        try {
 				client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
 				client.close();
 			} catch (UnsupportedEncodingException e1) {

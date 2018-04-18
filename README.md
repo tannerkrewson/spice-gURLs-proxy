@@ -25,7 +25,11 @@ Points: 10 points (project report) + 5 points (validation).
 TODO:
 Get modified time from google (in get response from url method)
 Get a Cache object up and running
-Handle 304
-look up examples of bad request (400)
+Handle 304 
+- Indicates that the resource has not been modified since the version specified by the request headers If-Modified-Since or If-None-Match. In such case, there is no need to retransmit the resource since the client still has a previously-downloaded copy.[26]
+400
+- malformed request syntax, size too large, invalid request message framing, or deceptive request routing
+- we'll focus on the syntax, I think. The other stuff might not be easy to measure. 
 and 501
+- request method is not supported by the server and cannot be handled. The only methods that servers are required to support (and therefore that must not return this code) are GET and HEAD.
 

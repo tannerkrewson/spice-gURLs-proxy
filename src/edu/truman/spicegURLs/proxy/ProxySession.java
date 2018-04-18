@@ -26,6 +26,7 @@ public class ProxySession implements Runnable {
 		if (!requestHeader.startsWith("GET")) {
 			throw new Exception("Bad request: " + requestHeader);
 		}
+		// This is prolly where we'd do the 501 error
 				
 		return requestHeader.split(" ");
 	}

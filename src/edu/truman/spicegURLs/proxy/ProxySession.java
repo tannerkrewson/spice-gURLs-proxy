@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.util.Scanner;
 public class ProxySession implements Runnable {
@@ -13,7 +14,7 @@ public class ProxySession implements Runnable {
 		this.client = client;
 	}
 	
-	private String[] getHeaderOfRequest() throws Exception{
+	private String[] getHeaderOfRequest() throws Exception {
 		BufferedReader inStream
 			= new BufferedReader(new InputStreamReader(client.getInputStream()));
 		
@@ -28,7 +29,7 @@ public class ProxySession implements Runnable {
 		return requestHeader.split(" ");
 	}
 	
-	private URL getURLFromRequest(String[] req) throws IOException{	
+	private URL getURLFromRequest(String[] req) throws IOException {	
 		if (!req[1].startsWith("/proxy/")) {
 			throw new IOException("Ignored: " + req[1]);
 		}
@@ -69,19 +70,27 @@ public class ProxySession implements Runnable {
 			
 			String response = getResponseFromURL(urlToGet);
 			
-			String message = "";
-			message += response;
-			
-	        String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + message;
+	        String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + response;
 	        client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
-	        
 	        System.out.println("Received " + urlToGet + " from " + client.getInetAddress());
-	        
 	        client.close();
-		} catch(Exception e) {
+	        
+		} catch (IOException e) {
+			System.err.println("HTTP/1.1 404 NOT FOUND \r\n\r\n" + e);
+			String httpResponse = "HTTP/1.1 404 Something Crazy \r\n\r\n";
+	        try {
+	        		System.out.println("Trying to send 404 to client");
+				client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
+				client.close();
+			} catch (UnsupportedEncodingException e1) {
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		} catch (Exception e) {
 			System.err.println(e);
 			//e.printStackTrace(System.out);
-		}
+		} 
 	}
 
 }

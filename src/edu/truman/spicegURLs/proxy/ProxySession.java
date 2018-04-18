@@ -23,14 +23,16 @@ public class ProxySession implements Runnable {
 		// GET /proxy/http://google.com HTTP/1.1
 		String requestHeader = inStream.readLine();
 		
+		// TODO: This is prolly where we'd do the 501 error
 		if (!requestHeader.startsWith("GET")) {
 			throw new Exception("Bad request: " + requestHeader);
 		}
-		// This is prolly where we'd do the 501 error
+		
 				
 		return requestHeader.split(" ");
 	}
 	
+	// TODO: We can also check for 304 in this method
 	private URL getURLFromRequest(String[] req) throws FileNotFoundException, IOException  {	
 		if (!req[1].startsWith("/proxy/")) {
 			throw new FileNotFoundException("Ignored: " + req[1]);
@@ -38,6 +40,7 @@ public class ProxySession implements Runnable {
 		
 		String url = req[1].substring(7);
 		
+		// TODO: This is where we can check for the 400 malformed error
 		if (url.length() == 0) {
 			throw new IOException();
 		}
@@ -64,6 +67,7 @@ public class ProxySession implements Runnable {
 			String[] requestHeader = getHeaderOfRequest();
 			
 			URL urlToGet = getURLFromRequest(requestHeader);
+			// TODO: This is where we'll check for 304
 			
 			String response = getResponseFromURL(urlToGet);
 			

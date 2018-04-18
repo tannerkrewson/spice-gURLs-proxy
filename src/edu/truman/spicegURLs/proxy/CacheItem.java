@@ -15,6 +15,7 @@ import javax.swing.Timer;
  * @version 17 April 2017
  */
 public class CacheItem {
+	
 	public static final int MS_PER_MIN = 60000;
 	public static final int DELAY = 1 * MS_PER_MIN; //43200 min in a month
 	private String request;

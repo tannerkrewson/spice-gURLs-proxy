@@ -1,4 +1,5 @@
 package edu.truman.spicegURLs.proxy;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -7,11 +8,20 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.util.Scanner;
+
+/**
+ * An object which acts as a client and processes requests.
+ * @author Brandon Crane
+ * @author Brandon Heisserer
+ * @author Tanner Krewson
+ * @author Carl Yarwood
+ * @version 17 April 2018
+ */
 public class ProxySession implements Runnable {
 	
 	private Socket client;
 	
-	public ProxySession(Socket client){
+	public ProxySession(Socket client) {
 		this.client = client;
 	}
 	
@@ -33,7 +43,7 @@ public class ProxySession implements Runnable {
 	}
 	
 	// TODO: We can also check for 304 in this method
-	private URL getURLFromRequest(String[] req) throws FileNotFoundException, IOException  {	
+	private URL getURLFromRequest(String[] req) throws FileNotFoundException, IOException {	
 		if (!req[1].startsWith("/proxy/")) {
 			throw new FileNotFoundException("Ignored: " + req[1]);
 		}

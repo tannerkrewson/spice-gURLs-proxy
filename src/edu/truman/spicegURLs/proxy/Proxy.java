@@ -2,6 +2,14 @@ package edu.truman.spicegURLs.proxy;
 
 import java.net.*;
 
+/**
+ * An object which acts as a server and hosts ProxySessions.
+ * @author Brandon Crane
+ * @author Brandon Heisserer
+ * @author Tanner Krewson
+ * @author Carl Yarwood
+ * @version 17 April 2018
+ */
 public class Proxy implements Runnable {
 	
 	ServerSocket server;

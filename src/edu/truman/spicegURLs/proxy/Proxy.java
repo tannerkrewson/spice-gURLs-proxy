@@ -11,14 +11,22 @@ import java.net.*;
  */
 public class Proxy implements Runnable {
 	
-	ServerSocket server;
-	Cache cache;
-	int port;
+	private ServerSocket server;
+	private Cache cache;
+	private int port;
 	
+	/**
+	 * Constructs a new proxy with a port
+	 * @param port the port number to run this server on
+	 */
 	public Proxy (int port) {
 		this.port = port;
 	}
 	
+	/**
+	 * Starts up the proxy server on the port
+	 * @see java.lang.Runnable#run()
+	 */
 	public void run () {
         System.out.println("Listening for connection on port " + this.port + " ....");
         

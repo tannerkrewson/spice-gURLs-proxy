@@ -2,6 +2,7 @@ package edu.truman.spicegURLs.proxy;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.Date;
 import javax.swing.Timer;
 
@@ -18,27 +19,43 @@ public class CacheItem {
 	
 	public static final int MS_PER_MIN = 60000;
 	public static final int DELAY = MS_PER_MIN / 2;
-	private String request;
-	private Date lastUpdated;
+	private URL request;
+	private String page;
+	private Date lastModified;
 	private Timer time;
 	
 	/**
 	 * Creates the object from a request.
 	 * @param request the page being cached
 	 */
-	public CacheItem(String request) {
+	public CacheItem(URL request, String page) {
 		this.request = request.toLowerCase();
-		lastUpdated = new Date();
-		time = new Timer(DELAY, new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				checkForUpdates();
-			}
-		});
+		this.page = page;
+		this.lastModified = new Date();
 	}
 
-	public String getRequest() {
+	public URL getRequest() {
 		return request;
+	}
+	
+	public String getPage() {
+		return page;
+	}
+	
+	public Date getLastModified() {
+		return lastModified;
+	}
+	
+	public void setRequest(String request) {
+		this.request = request;
+	}
+	
+	public void setPage(String page) {
+		this.page = page;
+	}
+	
+	public void setLastModified(Date lastModified) {
+		this.lastModified = lastModified;
 	}
 	
 	/**
@@ -47,21 +64,14 @@ public class CacheItem {
 	 * @param request the request to compare
 	 * @return the comparison
 	 */
-	public boolean isSameRequest(String request) {
-		if (this.request == request.toLowerCase()) {
+	public boolean isSameRequest(URL request) {
+		if (this.request == request) {
 			return true;
 		}
 		return false;
 	}
 	
-	public boolean checkIfUpdatedSince(Date check) {
-		if (lastUpdated.after(check)) {
-			return true;
-		}
-		return false;
-	}
-	
-	private void checkForUpdates() {
-		time.restart();
+	public String getRequestURL() {
+		return request.toString();
 	}
 }

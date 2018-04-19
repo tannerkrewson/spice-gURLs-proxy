@@ -1,10 +1,7 @@
 package edu.truman.spicegURLs.proxy;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.Date;
-import javax.swing.Timer;
 
 /**
  * An object which keeps track of cache information and automatically
@@ -22,14 +19,13 @@ public class CacheItem {
 	private URL request;
 	private String page;
 	private Date lastModified;
-	private Timer time;
 	
 	/**
 	 * Creates the object from a request.
 	 * @param request the page being cached
 	 */
 	public CacheItem(URL request, String page) {
-		this.request = request.toLowerCase();
+		this.request = request;
 		this.page = page;
 		this.lastModified = new Date();
 	}
@@ -45,18 +41,20 @@ public class CacheItem {
 	public Date getLastModified() {
 		return lastModified;
 	}
+
+	public String getRequestURL() {
+		return request.toString();
+	}
 	
-	public void setRequest(String request) {
+	public void setRequest(URL request) {
 		this.request = request;
 	}
 	
 	public void setPage(String page) {
 		this.page = page;
+		updateLastModified();
 	}
 	
-	public void setLastModified(Date lastModified) {
-		this.lastModified = lastModified;
-	}
 	
 	/**
 	 * Compares the given request with this object's request
@@ -71,7 +69,7 @@ public class CacheItem {
 		return false;
 	}
 	
-	public String getRequestURL() {
-		return request.toString();
+	private void updateLastModified() {
+		lastModified = new Date();
 	}
 }

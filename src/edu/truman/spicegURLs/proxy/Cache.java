@@ -32,8 +32,8 @@ public class Cache {
 	public void addItem(CacheItem in){
 		this.CacheStore.put(in.getRequestURL(),in);
 	}
-	public void removeItem(){
-		
+	public void removeItem(String key){
+		CacheStore.remove(key);
 	}
 	public CacheItem getItem(String key){
 		return CacheStore.get(key);

@@ -14,8 +14,6 @@ import java.util.Date;
  */
 public class CacheItem {
 	
-	public static final int MS_PER_MIN = 60000;
-	public static final int DELAY = MS_PER_MIN / 2;
 	private URL request;
 	private String page;
 	private Date lastModified;

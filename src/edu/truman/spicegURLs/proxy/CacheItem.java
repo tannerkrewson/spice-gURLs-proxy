@@ -2,7 +2,7 @@ package edu.truman.spicegURLs.proxy;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Hashtable;
+import java.util.Date;
 import javax.swing.Timer;
 
 /**
@@ -17,24 +17,22 @@ import javax.swing.Timer;
 public class CacheItem {
 	
 	public static final int MS_PER_MIN = 60000;
-	public static final int DELAY = 1 * MS_PER_MIN; //43200 min in a month
+	public static final int DELAY = MS_PER_MIN / 2;
 	private String request;
-	private Hashtable<String, CacheItem> cacheList;
+	private Date lastUpdated;
 	private Timer time;
 	
 	/**
-	 * Creates the object from a request and is given access to the
-	 * list in which it is held.
+	 * Creates the object from a request.
 	 * @param request the page being cached
-	 * @param cacheList the list in which this object is contained
 	 */
-	public CacheItem(String request, Hashtable<String, CacheItem> cacheList) {
+	public CacheItem(String request) {
 		this.request = request.toLowerCase();
-		this.cacheList = cacheList;
+		lastUpdated = new Date();
 		time = new Timer(DELAY, new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				terminateCacheItem();
+				checkForUpdates();
 			}
 		});
 	}
@@ -52,22 +50,14 @@ public class CacheItem {
 		return false;
 	}
 	
-	/**
-	 * Resets the timer
-	 */
-	public void resetTimer() {
-		time.restart();
+	public boolean checkIfUpdatedSince(Date check) {
+		if (lastUpdated.after(check)) {
+			return true;
+		}
+		return false;
 	}
 	
-	//ifModifiedSince
-	
-	//checkForUpdates
-	
-	/**
-	 * Removes this object from the list when it has expired.
-	 */
-	private void terminateCacheItem() {
-		time.stop();
-		cacheList.remove(request);
+	private void checkForUpdates() {
+		time.restart();
 	}
 }

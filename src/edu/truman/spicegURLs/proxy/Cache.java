@@ -30,7 +30,12 @@ public class Cache {
 		}));
 	}
 	public void addItem(CacheItem in){
-		this.CacheStore.put(in.getRequestURL(),in);
+		if(!this.CacheStore.containsKey(in.getRequestURL())){
+			this.CacheStore.put(in.getRequestURL(),in);
+		}
+		else{
+			this.CacheStore.replace(in.getRequestURL(),in);
+		}
 	}
 	public void removeItem(String key){
 		CacheStore.remove(key);

@@ -12,6 +12,7 @@ import java.net.*;
 public class Proxy implements Runnable {
 	
 	ServerSocket server;
+	Cache cache;
 	int port;
 	
 	public Proxy (int port) {
@@ -21,10 +22,12 @@ public class Proxy implements Runnable {
 	public void run () {
         System.out.println("Listening for connection on port " + this.port + " ....");
         
+        cache = new Cache();
+        
         try {
         	this.server = new ServerSocket(this.port);
 			while (true) {
-            	Thread t = new Thread(new ProxySession(server.accept()));
+            	Thread t = new Thread(new ProxySession(server.accept(), cache));
             	t.start();
 			}
 		} catch (Exception e) {

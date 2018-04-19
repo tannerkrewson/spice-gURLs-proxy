@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
+import java.util.Date;
 import java.util.Scanner;
 
 /**
@@ -20,9 +21,11 @@ import java.util.Scanner;
 public class ProxySession implements Runnable {
 	
 	private Socket client;
+	private Cache cache;
 	
-	public ProxySession(Socket client) {
+	public ProxySession(Socket client, Cache cache) {
 		this.client = client;
+		this.cache = cache;
 	}
 	
 	private String[] getHeaderOfRequest() throws Exception {
@@ -63,12 +66,13 @@ public class ProxySession implements Runnable {
 		return new URL(url);
 	}
 	
-	private String getResponseFromURL (URL url) throws Exception {
-		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-		connection.setRequestMethod("GET");
-		connection.connect();
+	private String getResponseFromURL (URL url, Date ims) throws Exception {
+		HttpURLConnection con = (HttpURLConnection)url.openConnection();
+		con.setRequestMethod("GET");
+		con.setIfModifiedSince(ims.getTime());
+		con.connect();
 		
-		InputStream response = connection.getInputStream();
+		InputStream response = con.getInputStream();
 		Scanner scanner = new Scanner(response);
 	    String responseBody = scanner.useDelimiter("\\A").next();
 	    scanner.close();
@@ -91,9 +95,20 @@ public class ProxySession implements Runnable {
 			String[] requestHeader = getHeaderOfRequest();
 			
 			URL urlToGet = getURLFromRequest(requestHeader);
-			// TODO: This is where we'll check for 304
 			
-			sendResponse("200 OK", getResponseFromURL(urlToGet));
+			// This is where we'll check for 304
+			String response;
+			
+			/*CacheItem ci = cache.get(urlToGet);
+			if (ci != null) {
+				response = getResponseFromURL(urlToGet, ci.getLastModified());
+				ci.setPage(response);
+			} else {*/
+				response = getResponseFromURL(urlToGet, new Date());
+				cache.addItem(new CacheItem(urlToGet, response));
+			//}
+			
+			sendResponse("200 OK", response);
 	     
 		} catch (FileNotFoundException e) {
 			try {

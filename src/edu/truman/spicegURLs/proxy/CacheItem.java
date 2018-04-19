@@ -28,26 +28,50 @@ public class CacheItem {
 		this.lastModified = new Date();
 	}
 
+	/**
+	 * Gets request URL
+	 * @return request
+	 */
 	public URL getRequest() {
 		return request;
 	}
 	
+	/**
+	 * Gets page String
+	 * @return page
+	 */
 	public String getPage() {
 		return page;
 	}
 	
+	/**
+	 * Gets lastModified Date
+	 * @return lastModified
+	 */
 	public Date getLastModified() {
 		return lastModified;
 	}
 
+	/**
+	 * Gets request String
+	 * @return request
+	 */
 	public String getRequestURL() {
 		return request.toString();
 	}
 	
+	/**
+	 * Sets request URL
+	 * @param request the request to set
+	 */
 	public void setRequest(URL request) {
 		this.request = request;
 	}
 	
+	/**
+	 * Sets page String and updates lastModified
+	 * @param page the page to set
+	 */
 	public void setPage(String page) {
 		this.page = page;
 		updateLastModified();
@@ -67,6 +91,9 @@ public class CacheItem {
 		return false;
 	}
 	
+	/**
+	 * Resets the value of lastModified to the current time.
+	 */
 	private void updateLastModified() {
 		lastModified = new Date();
 	}

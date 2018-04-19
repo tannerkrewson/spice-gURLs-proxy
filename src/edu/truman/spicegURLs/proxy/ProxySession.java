@@ -75,6 +75,16 @@ public class ProxySession implements Runnable {
 	    return responseBody;
 	}
 	
+	private void sendResponse(String code) throws Exception {
+		sendResponse(code, "");
+	}
+	
+	private void sendResponse(String code, String response) throws Exception {
+        String httpResponse = "HTTP/1.1 " + code + "\r\n\r\n" + response;
+    	client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
+        client.close();
+	}
+	
 	@Override
 	public void run() {
 		try {
@@ -83,36 +93,22 @@ public class ProxySession implements Runnable {
 			URL urlToGet = getURLFromRequest(requestHeader);
 			// TODO: This is where we'll check for 304
 			
-			String response = getResponseFromURL(urlToGet);
-			
-	        String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + response;
-	        client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
-	        System.out.println("Received " + urlToGet + " from " + client.getInetAddress());
-	        client.close();
+			sendResponse("200 OK", getResponseFromURL(urlToGet));
 	     
 		} catch (FileNotFoundException e) {
-			String httpResponse = "HTTP/1.1 204 NO CONTENT \r\n\r\n";
-	        try {
-				client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
-				client.close();
-			} catch (UnsupportedEncodingException e1) {
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				e1.printStackTrace();
+			try {
+				sendResponse("204 No Content");
+			} catch (Exception e2) {
+				e2.printStackTrace(System.out);
 			}
 		} catch (IOException e) {
-			String httpResponse = "HTTP/1.1 400 BAD REQUEST \r\n\r\n";
-	        try {
-				client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
-				client.close();
-			} catch (UnsupportedEncodingException e1) {
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				e1.printStackTrace();
+			try {
+				sendResponse("400 Bad Request");
+			} catch (Exception e2) {
+				e2.printStackTrace(System.out);
 			}
 		} catch (Exception e) {
-			System.err.println(e);
-			//e.printStackTrace(System.out);
+			e.printStackTrace(System.out);
 		} 
 	}
 

@@ -1,5 +1,7 @@
 package main;
 
+import java.io.*;
+
 import edu.truman.spicegURLs.proxy.Proxy;
 
 /**
@@ -14,9 +16,15 @@ public class Main {
 	
 	static final int PORT = 8080;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		Thread t = new Thread(new Proxy(PORT));
 		t.start();
+		
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		do {
+			System.out.println("Enter \"exit\" to terminate the proxy.");
+		} while (!reader.readLine().trim().equals("exit"));
+		System.exit(0);
 	}
 
 }

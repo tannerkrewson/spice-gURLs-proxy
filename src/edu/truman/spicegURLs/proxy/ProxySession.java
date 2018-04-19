@@ -144,12 +144,12 @@ public class ProxySession implements Runnable {
 			if (ci != null) {
 				response = getResponseFromURL(urlToGet, ci.getLastModified());
 				ci.setPage(response);
+				sendResponse("305 Use Proxy", response);
 			} else {
 				response = getResponseFromURL(urlToGet, new Date());
 				cache.addItem(new CacheItem(urlToGet, response));
+				sendResponse("200 OK", response);
 			}
-			
-			sendResponse("200 OK", response);
 	     
 		} catch (FileNotFoundException e) {
 			try {

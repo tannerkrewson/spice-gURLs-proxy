@@ -1,5 +1,6 @@
 package edu.truman.spicegURLs.proxy;
 
+import java.io.Serializable;
 import java.net.URL;
 import java.util.Date;
 
@@ -12,7 +13,7 @@ import java.util.Date;
  * @author Carl Yarwood
  * @version 17 April 2017
  */
-public class CacheItem {
+public class CacheItem implements Serializable {
 	
 	private URL request;
 	private String page;

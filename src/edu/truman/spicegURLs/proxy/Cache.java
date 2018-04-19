@@ -40,13 +40,14 @@ public class Cache {
 	}
 	public void shutDown(){
 		try{
-			FileOutputStream foe = new FileOutputStream("hashcache.ser");
+			FileOutputStream foe = new FileOutputStream("hashcache.ser", false);
 			ObjectOutputStream oos = new ObjectOutputStream(foe);
 			oos.writeObject(CacheStore);
 			oos.close();
 			foe.close();
 		}catch(Exception e){
 			System.err.println("Could not write Cache");
+			System.err.println(e);
 		}
 	}
 }

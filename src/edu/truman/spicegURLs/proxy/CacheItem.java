@@ -37,6 +37,10 @@ public class CacheItem {
 		});
 	}
 
+	public String getRequest() {
+		return request;
+	}
+	
 	/**
 	 * Compares the given request with this object's request
 	 * and returns whether or not they are equivalent.

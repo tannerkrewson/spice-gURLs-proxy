@@ -1,7 +1,6 @@
 package edu.truman.spicegURLs.proxy;
 
 import java.net.*;
-
 /**
  * An object which acts as a server and hosts ProxySessions.
  * @author Brandon Crane

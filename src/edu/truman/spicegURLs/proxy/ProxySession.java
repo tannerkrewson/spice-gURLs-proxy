@@ -64,7 +64,11 @@ public class ProxySession implements Runnable {
 	}
 	
 	private String getResponseFromURL (URL url) throws Exception {
-		InputStream response = url.openStream();
+		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+		connection.setRequestMethod("GET");
+		connection.connect();
+		
+		InputStream response = connection.getInputStream();
 		Scanner scanner = new Scanner(response);
 	    String responseBody = scanner.useDelimiter("\\A").next();
 	    scanner.close();

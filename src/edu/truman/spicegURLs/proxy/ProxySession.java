@@ -81,62 +81,13 @@ public class ProxySession implements Runnable {
 	}
 	
 	/**
-	 * Makes a request to the given URL with no if-modified-since
-	 * time, and returns the contents of the result as a string, usually 
-	 * raw HTML.
-	 * @param url the URL to send a GET request to
-	 * @return the result of the request
-	 * @throws Exception
-	 */
-	private HttpResponse getResponseFromURL (URL url) throws Exception {
-		return getResponseFromURL(url, null);
-	}
-	
-	/**
-	 * Makes a request to the given URL with the given if-modified-since
-	 * time, and returns the contents of the result as a string, usually 
-	 * raw HTML.
-	 * @param url the URL to send a GET request to
-	 * @param ims the if-modified-since time
-	 * @return the result of the request
-	 * @throws Exception
-	 */
-	private HttpResponse getResponseFromURL (URL url, Date ims) throws Exception {
-		HttpURLConnection con = (HttpURLConnection)url.openConnection();
-		con.setRequestMethod("GET");
-		if (ims != null) {
-			con.setIfModifiedSince(ims.getTime());
-		}
-		con.connect();
-		
-		System.out.println(con.getResponseCode() + ": " + url.toString());
-		
-		StringBuffer response = new StringBuffer();
-		BufferedReader in = new BufferedReader(
-		        new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-			response.append("\r\n");
-		}
-		in.close();
-		
-		return new HttpResponse(
-				con.getResponseCode(), 
-				con.getHeaderFields(), 
-				response.toString());
-
-	}
-	
-	/**
 	 * Send a response to our client with the given code and no further
 	 * content.
 	 * @param code HTTP response code
 	 * @throws Exception
 	 */
 	private void sendResponse(String code) throws Exception {
-		String httpResponse = "HTTP/1.1 " + code + "\r\n";
+		String httpResponse = "HTTP/1.1 " + code + "\r\n\r\n";
 		client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
 		client.close();
 	}
@@ -150,10 +101,12 @@ public class ProxySession implements Runnable {
 	 */
 	private void sendResponse(String code, HttpResponse response) throws Exception {
 		String httpResponse = "HTTP/1.1 " + code + "\r\n" + response.toString();
+		System.out.println("Sent to user: " + code + ", " + response.toString().length());
+		
 		client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
 		client.close();
 	}
-	
+		
 	/**
 	 * Parses the client's request, requests it, and sends the response 
 	 * back to them.
@@ -166,19 +119,14 @@ public class ProxySession implements Runnable {
 			
 			URL urlToGet = getURLFromRequest(requestHeader);
 			
-			// This is where we'll check for 304
-			HttpResponse response;
-			
 			CacheItem ci = cache.getItem(urlToGet.toString());
-			if (ci != null) {
-				response = getResponseFromURL(urlToGet, ci.getLastModified());
-				ci.setPage(response);
-				sendResponse("200 OK", response);
-			} else {
-				response = getResponseFromURL(urlToGet);
-				cache.addItem(new CacheItem(urlToGet, response));
-				sendResponse("200 OK", response);
+			if (ci == null) {
+				ci = new CacheItem(urlToGet);
+				ci.requestInitialPage();
+				cache.addItem(ci);
 			}
+			HttpResponse page = ci.getPage();
+			sendResponse(String.valueOf(page.getResponseCode()), page);
 	     
 		} catch (IOException e) {
 			try {

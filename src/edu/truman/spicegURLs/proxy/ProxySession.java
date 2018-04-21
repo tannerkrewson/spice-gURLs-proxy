@@ -101,7 +101,6 @@ public class ProxySession implements Runnable {
 	 */
 	private void sendResponse(String code, HttpResponse response) throws Exception {
 		String httpResponse = "HTTP/1.1 " + code + "\r\n" + response.toString();
-		System.out.println("Sent to user: " + code + ", " + response.toString().length());
 		
 		client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
 		client.close();

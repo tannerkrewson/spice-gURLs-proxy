@@ -180,8 +180,7 @@ public class CacheItem implements Serializable {
 			in.close();
 			
 			return new HttpResponse(
-					con.getResponseCode(), 
-					con.getHeaderFields(), 
+					con.getResponseCode(),  
 					response.toString());
 		} catch (Exception e) {
 			System.err.println(e);

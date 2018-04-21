@@ -32,6 +32,12 @@ public class CacheItem implements Serializable {
 	public CacheItem(URL request) {
 		this.request = request;
 		this.lastModified = new Date();
+		initTimer();
+	}
+	/**
+	 * defines and initializes update timer for Cache Item object
+	 */
+	public void initTimer(){
 		this.updater = new Timer(30*1000, new ActionListener (){
 
 			@Override
@@ -48,8 +54,7 @@ public class CacheItem implements Serializable {
 	/**
 	 * Start the timer that checks to see if the page has been updated.
 	 */
-	public void startTimer(){
-		System.out.println("Timer starting: " + request.toString());
+	private void startTimer(){
 		updater.start();
 	}
 

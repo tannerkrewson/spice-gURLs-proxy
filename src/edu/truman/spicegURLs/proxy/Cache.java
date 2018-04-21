@@ -18,7 +18,9 @@ public class Cache {
 			Set<String> startUpList = CacheStore.keySet();
 			Iterator<String> itrSet = startUpList.iterator();
 			while(itrSet.hasNext()){
-				CacheStore.get(itrSet.next()).startTimer();
+				String key = itrSet.next();
+				CacheStore.get(key).initTimer();
+				CacheStore.get(key).requestUpdatedPage();
 			}
 		}catch(Exception e){
 			System.err.println("Cache either does not exist or could not be processed\n creating a new Cache");

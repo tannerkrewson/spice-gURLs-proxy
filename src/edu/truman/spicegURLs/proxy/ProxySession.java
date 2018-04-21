@@ -81,6 +81,18 @@ public class ProxySession implements Runnable {
 	}
 	
 	/**
+	 * Makes a request to the given URL with no if-modified-since
+	 * time, and returns the contents of the result as a string, usually 
+	 * raw HTML.
+	 * @param url the URL to send a GET request to
+	 * @return the result of the request
+	 * @throws Exception
+	 */
+	private HttpResponse getResponseFromURL (URL url) throws Exception {
+		return getResponseFromURL(url, null);
+	}
+	
+	/**
 	 * Makes a request to the given URL with the given if-modified-since
 	 * time, and returns the contents of the result as a string, usually 
 	 * raw HTML.
@@ -92,7 +104,9 @@ public class ProxySession implements Runnable {
 	private HttpResponse getResponseFromURL (URL url, Date ims) throws Exception {
 		HttpURLConnection con = (HttpURLConnection)url.openConnection();
 		con.setRequestMethod("GET");
-		con.setIfModifiedSince(ims.getTime());
+		if (ims != null) {
+			con.setIfModifiedSince(ims.getTime());
+		}
 		con.connect();
 		
 		System.out.println(con.getResponseCode() + ": " + url.toString());
@@ -161,7 +175,7 @@ public class ProxySession implements Runnable {
 				//ci.setPage(response);
 				sendResponse("200 OK", response);
 			} else {
-				response = getResponseFromURL(urlToGet, new Date());
+				response = getResponseFromURL(urlToGet);
 				//cache.addItem(new CacheItem(urlToGet, response));
 				sendResponse("200 OK", response);
 			}

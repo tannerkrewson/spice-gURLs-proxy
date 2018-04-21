@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import javax.xml.transform.Source;
+
 /**
  * An object which acts as a client and processes requests.
  * @author Brandon Crane
@@ -87,34 +89,15 @@ public class ProxySession implements Runnable {
 	 * @return the result of the request
 	 * @throws Exception
 	 */
-	private String getResponseFromURL (URL url, Date ims) throws Exception {
+	private HttpResponse getResponseFromURL (URL url, Date ims) throws Exception {
 		HttpURLConnection con = (HttpURLConnection)url.openConnection();
 		con.setRequestMethod("GET");
 		con.setIfModifiedSince(ims.getTime());
 		con.connect();
 		
-		StringBuffer response = new StringBuffer();
+		System.out.println(con.getResponseCode() + ": " + url.toString());
 		
-		Map<String, List<String>> map = con.getHeaderFields();
-		for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-			
-			// important because first header key is always null
-			if (entry.getKey() == null) continue;
-			
-			response.append(entry.getKey());
-			response.append(": ");
-			
-			//convert list to string
-			String val = entry.getValue().toString().trim();
-			val = val.substring(1, val.length()-1);
-			
-			//remove leading and trailing brackets
-			response.append(val);
-			
-			response.append("\r\n");
-		}
-		response.append("\r\n");
-
+		StringBuffer response = new StringBuffer();
 		BufferedReader in = new BufferedReader(
 		        new InputStreamReader(con.getInputStream()));
 		String inputLine;
@@ -125,7 +108,11 @@ public class ProxySession implements Runnable {
 		}
 		in.close();
 		
-		return response.toString();
+		return new HttpResponse(
+				con.getResponseCode(), 
+				con.getHeaderFields(), 
+				response.toString());
+
 	}
 	
 	/**
@@ -135,7 +122,9 @@ public class ProxySession implements Runnable {
 	 * @throws Exception
 	 */
 	private void sendResponse(String code) throws Exception {
-		sendResponse(code, "\r\n");
+		String httpResponse = "HTTP/1.1 " + code + "\r\n";
+		client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
+		client.close();
 	}
 	
 	/**
@@ -145,8 +134,8 @@ public class ProxySession implements Runnable {
 	 * @param response HTML or things to send back
 	 * @throws Exception
 	 */
-	private void sendResponse(String code, String response) throws Exception {
-		String httpResponse = "HTTP/1.1 " + code + "\r\n" + response;
+	private void sendResponse(String code, HttpResponse response) throws Exception {
+		String httpResponse = "HTTP/1.1 " + code + "\r\n" + response.toString();
 		client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
 		client.close();
 	}
@@ -164,16 +153,16 @@ public class ProxySession implements Runnable {
 			URL urlToGet = getURLFromRequest(requestHeader);
 			
 			// This is where we'll check for 304
-			String response;
+			HttpResponse response;
 			
 			CacheItem ci = cache.getItem(urlToGet.toString());
 			if (ci != null) {
 				response = getResponseFromURL(urlToGet, ci.getLastModified());
-				ci.setPage(response);
+				//ci.setPage(response);
 				sendResponse("200 OK", response);
 			} else {
 				response = getResponseFromURL(urlToGet, new Date());
-				cache.addItem(new CacheItem(urlToGet, response));
+				//cache.addItem(new CacheItem(urlToGet, response));
 				sendResponse("200 OK", response);
 			}
 	     

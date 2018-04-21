@@ -20,6 +20,7 @@ import java.awt.event.*;
  */
 public class CacheItem implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
 	private URL request;
 	private HttpResponse page;
 	private Date lastModified;

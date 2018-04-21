@@ -15,6 +15,11 @@ public class Cache {
 			CacheStore = (HashMap<String,CacheItem>) ois.readObject();
 			ois.close();
 			fis.close();
+			Set<String> startUpList = CacheStore.keySet();
+			Iterator<String> itrSet = startUpList.iterator();
+			while(itrSet.hasNext()){
+				CacheStore.get(itrSet.next()).startTimer();
+			}
 		}catch(Exception e){
 			System.err.println("Cache either does not exist or could not be processed\n creating a new Cache");
 			CacheStore = new HashMap<String,CacheItem>();

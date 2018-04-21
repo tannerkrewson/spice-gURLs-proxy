@@ -3,6 +3,8 @@ package edu.truman.spicegURLs.proxy;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.Date;
+import javax.swing.Timer;
+import java.awt.event.*;
 
 /**
  * An object which keeps track of cache information and automatically
@@ -16,17 +18,31 @@ import java.util.Date;
 public class CacheItem implements Serializable {
 	
 	private URL request;
-	private String page;
+	private HttpResponse page;
 	private Date lastModified;
+	private Timer updater;
 	
 	/**
 	 * Creates the object from a request.
 	 * @param request the page being cached
 	 */
-	public CacheItem(URL request, String page) {
+	public CacheItem(URL request, HttpResponse page) {
 		this.request = request;
 		this.page = page;
 		this.lastModified = new Date();
+		this.updater = new Timer(30000, new ActionListener (){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				updater.restart();
+			}
+			
+		});
+		updater.start();
+	}
+	public void startTimer(){
+		updater.start();
 	}
 
 	/**
@@ -41,7 +57,7 @@ public class CacheItem implements Serializable {
 	 * Gets page String
 	 * @return page
 	 */
-	public String getPage() {
+	public HttpResponse getPage() {
 		return page;
 	}
 	
@@ -73,7 +89,7 @@ public class CacheItem implements Serializable {
 	 * Sets page String and updates lastModified
 	 * @param page the page to set
 	 */
-	public void setPage(String page) {
+	public void setPage(HttpResponse page) {
 		this.page = page;
 		updateLastModified();
 	}
@@ -90,6 +106,10 @@ public class CacheItem implements Serializable {
 			return true;
 		}
 		return false;
+	}
+	private int updateCache(){
+		return 0;
+		
 	}
 	
 	/**

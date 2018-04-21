@@ -2,8 +2,7 @@ package edu.truman.spicegURLs.proxy;
 
 import java.io.*;
 import java.net.*;
-import java.util.Date;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * An object which acts as a client and processes requests.
@@ -11,7 +10,7 @@ import java.util.Scanner;
  * @author Brandon Heisserer
  * @author Tanner Krewson
  * @author Carl Yarwood
- * @version 17 April 2018
+ * @version 21 April 2018
  */
 public class ProxySession implements Runnable {
 	
@@ -34,7 +33,7 @@ public class ProxySession implements Runnable {
 	 * @return string array of the parts of the header
 	 * @throws Exception
 	 */
-	private String[] getHeaderOfRequest() throws Exception {
+	private String[] getHeaderOfRequest() throws IOException {
 		BufferedReader inStream
 			= new BufferedReader(new InputStreamReader(client.getInputStream()));
 		
@@ -43,11 +42,10 @@ public class ProxySession implements Runnable {
 		String requestHeader = inStream.readLine();
 		
 		// TODO: This is prolly where we'd do the 501 error
-		if (!requestHeader.startsWith("GET")) {
-			throw new Exception("Bad request: " + requestHeader);
+		if (requestHeader == null || !requestHeader.startsWith("GET")) {
+			throw new IOException("400 Bad Request");
 		}
-		
-				
+			
 		return requestHeader.split(" ");
 	}
 	
@@ -58,18 +56,18 @@ public class ProxySession implements Runnable {
 	 * @throws FileNotFoundException request doesn't start with /proxy/
 	 * @throws IOException URL from request is malformed
 	 */
-	private URL getURLFromRequest(String[] req) throws FileNotFoundException, IOException {
+	private URL getURLFromRequest(String[] req) throws IOException {
 		// TODO: We can also check for 304 in this method
 		
-		if (!req[1].startsWith("/proxy/")) {
-			throw new FileNotFoundException("Ignored: " + req[1]);
-		}
+		String url = req[1];
 		
-		String url = req[1].substring(7);
+		if (url.startsWith("/")) {
+			url = url.substring(1);
+		}
 		
 		// TODO: This is where we can check for the 400 malformed error
 		if (url.length() == 0) {
-			throw new IOException();
+			throw new IOException("400 Bad Request");
 		}
 		
 		// make sure it has http://
@@ -95,11 +93,39 @@ public class ProxySession implements Runnable {
 		con.setIfModifiedSince(ims.getTime());
 		con.connect();
 		
-		InputStream response = con.getInputStream();
-		Scanner scanner = new Scanner(response);
-	    String responseBody = scanner.useDelimiter("\\A").next();
-	    scanner.close();
-	    return responseBody;
+		StringBuffer response = new StringBuffer();
+		
+		Map<String, List<String>> map = con.getHeaderFields();
+		for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+			
+			// important because first header key is always null
+			if (entry.getKey() == null) continue;
+			
+			response.append(entry.getKey());
+			response.append(": ");
+			
+			//convert list to string
+			String val = entry.getValue().toString().trim();
+			val = val.substring(1, val.length()-1);
+			
+			//remove leading and trailing brackets
+			response.append(val);
+			
+			response.append("\r\n");
+		}
+		response.append("\r\n");
+
+		BufferedReader in = new BufferedReader(
+		        new InputStreamReader(con.getInputStream()));
+		String inputLine;
+		
+		while ((inputLine = in.readLine()) != null) {
+			response.append(inputLine);
+			response.append("\r\n");
+		}
+		in.close();
+		
+		return response.toString();
 	}
 	
 	/**
@@ -109,7 +135,7 @@ public class ProxySession implements Runnable {
 	 * @throws Exception
 	 */
 	private void sendResponse(String code) throws Exception {
-		sendResponse(code, "");
+		sendResponse(code, "\r\n");
 	}
 	
 	/**
@@ -120,9 +146,9 @@ public class ProxySession implements Runnable {
 	 * @throws Exception
 	 */
 	private void sendResponse(String code, String response) throws Exception {
-        String httpResponse = "HTTP/1.1 " + code + "\r\n\r\n" + response;
-    	client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
-        client.close();
+		String httpResponse = "HTTP/1.1 " + code + "\r\n" + response;
+		client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
+		client.close();
 	}
 	
 	/**
@@ -144,22 +170,17 @@ public class ProxySession implements Runnable {
 			if (ci != null) {
 				response = getResponseFromURL(urlToGet, ci.getLastModified());
 				ci.setPage(response);
-				sendResponse("305 Use Proxy", response);
+				sendResponse("200 OK", response);
 			} else {
 				response = getResponseFromURL(urlToGet, new Date());
 				cache.addItem(new CacheItem(urlToGet, response));
 				sendResponse("200 OK", response);
 			}
 	     
-		} catch (FileNotFoundException e) {
-			try {
-				sendResponse("204 No Content");
-			} catch (Exception e2) {
-				e2.printStackTrace(System.out);
-			}
 		} catch (IOException e) {
 			try {
-				sendResponse("400 Bad Request");
+				System.err.println(e.getMessage());
+				sendResponse(e.getMessage());
 			} catch (Exception e2) {
 				e2.printStackTrace(System.out);
 			}

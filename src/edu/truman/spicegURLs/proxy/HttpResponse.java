@@ -1,8 +1,9 @@
 package edu.truman.spicegURLs.proxy;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class HttpResponse {
+public class HttpResponse implements Serializable {
 	
 	private int code;
 	private Map<String, List<String>> headers;

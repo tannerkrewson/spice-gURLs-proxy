@@ -172,11 +172,11 @@ public class ProxySession implements Runnable {
 			CacheItem ci = cache.getItem(urlToGet.toString());
 			if (ci != null) {
 				response = getResponseFromURL(urlToGet, ci.getLastModified());
-				//ci.setPage(response);
+				ci.setPage(response);
 				sendResponse("200 OK", response);
 			} else {
 				response = getResponseFromURL(urlToGet);
-				//cache.addItem(new CacheItem(urlToGet, response));
+				cache.addItem(new CacheItem(urlToGet, response));
 				sendResponse("200 OK", response);
 			}
 	     

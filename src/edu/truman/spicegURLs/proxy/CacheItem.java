@@ -2,6 +2,7 @@ package edu.truman.spicegURLs.proxy;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
@@ -173,6 +174,10 @@ public class CacheItem implements Serializable {
 			
 			System.out.println(resStatus + ": " + url);
 			
+			if (con.getResponseCode() != 200) {
+				throw new IOException(resStatus);
+			}
+			
 			InputStream is = con.getInputStream();
 			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
@@ -189,8 +194,9 @@ public class CacheItem implements Serializable {
 					resStatus, 
 					con.getHeaderFields(),
 					buffer.toByteArray());	
+		} catch (IOException e) {
+			return new HttpResponse(e.getMessage());
 		} catch (Exception e) {
-			System.err.println(e);
 			e.printStackTrace(System.out);
 			return null;
 		}

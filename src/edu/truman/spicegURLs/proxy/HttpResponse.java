@@ -10,14 +10,14 @@ public class HttpResponse implements Serializable {
 	private Map<String, List<String>> headers;
 	private byte[] content;
 	
+	public HttpResponse(String code) {
+		this(code, null, new byte[0]);
+	}
+	
 	public HttpResponse(String code, Map<String, List<String>> headers, byte[] response) {
 		this.code = code;
 		this.headers = headers;
-		if (response != null) {
-			this.content = response;
-		} else {
-			this.content = new byte[0];
-		}
+		this.content = response;
 	}
 	
 	public String getResponseCode() {

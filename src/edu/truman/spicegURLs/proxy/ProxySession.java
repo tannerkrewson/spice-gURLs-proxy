@@ -81,8 +81,7 @@ public class ProxySession implements Runnable {
 	 * @throws Exception
 	 */
 	private void sendResponse(String code) throws Exception {
-		HttpResponse temp = new HttpResponse(code, null, null);
-		sendResponse(temp);
+		sendResponse(new HttpResponse(code));
 	}
 	
 	/**

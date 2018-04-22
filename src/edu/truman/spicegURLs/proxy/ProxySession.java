@@ -2,9 +2,6 @@ package edu.truman.spicegURLs.proxy;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
-
-import javax.xml.transform.Source;
 
 /**
  * An object which acts as a client and processes requests.
@@ -43,9 +40,8 @@ public class ProxySession implements Runnable {
 		// GET /proxy/http://google.com HTTP/1.1
 		String requestHeader = inStream.readLine();
 		
-		// TODO: This is prolly where we'd do the 501 error
 		if (requestHeader == null || !requestHeader.startsWith("GET")) {
-			throw new IOException("400 Bad Request");
+			throw new IOException("501 NOT IMPLEMENTED");
 		}
 			
 		return requestHeader.split(" ");
@@ -59,7 +55,6 @@ public class ProxySession implements Runnable {
 	 * @throws IOException URL from request is malformed
 	 */
 	private URL getURLFromRequest(String[] req) throws IOException {
-		// TODO: We can also check for 304 in this method
 		
 		String url = req[1];
 		
@@ -67,14 +62,13 @@ public class ProxySession implements Runnable {
 			url = url.substring(1);
 		}
 		
-		// TODO: This is where we can check for the 400 malformed error
-		if (url.length() == 0) {
-			throw new IOException("400 Bad Request");
-		}
-		
 		// make sure it has http://
 		if (!url.toLowerCase().matches("^\\w+://.*")) {
 		    url = "http://" + url;
+		}
+		
+		if(!url.toLowerCase().matches("^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
+			throw new IOException("400 Bad Request");
 		}
 		
 		return new URL(url);

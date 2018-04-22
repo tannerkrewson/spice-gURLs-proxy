@@ -30,7 +30,6 @@ public class Cache {
 
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
 				shutDown();
 			}
 			

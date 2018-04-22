@@ -41,7 +41,7 @@ public class ProxySession implements Runnable {
 		String requestHeader = inStream.readLine();
 		
 		if (requestHeader == null || !requestHeader.startsWith("GET")) {
-			throw new IOException("501 NOT IMPLEMENTED");
+			throw new IOException("501 Not Implemented");
 		}
 			
 		return requestHeader.split(" ");
@@ -81,9 +81,8 @@ public class ProxySession implements Runnable {
 	 * @throws Exception
 	 */
 	private void sendResponse(String code) throws Exception {
-		String httpResponse = "HTTP/1.1 " + code + "\r\n\r\n";
-		client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
-		client.close();
+		HttpResponse temp = new HttpResponse(code, null, null);
+		sendResponse(temp);
 	}
 	
 	/**
@@ -93,10 +92,8 @@ public class ProxySession implements Runnable {
 	 * @param response HTML or things to send back
 	 * @throws Exception
 	 */
-	private void sendResponse(String code, HttpResponse response) throws Exception {
-		String httpResponse = "HTTP/1.1 " + code + "\r\n" + response.toString();
-		
-		client.getOutputStream().write(httpResponse.getBytes("UTF-8"));
+	private void sendResponse(HttpResponse response) throws Exception {
+		client.getOutputStream().write(response.getRawResponse());
 		client.close();
 	}
 		
@@ -119,7 +116,7 @@ public class ProxySession implements Runnable {
 				cache.addItem(ci);
 			}
 			HttpResponse page = ci.getPage();
-			sendResponse(String.valueOf(page.getResponseCode()), page);
+			sendResponse(page);
 	     
 		} catch (IOException e) {
 			try {

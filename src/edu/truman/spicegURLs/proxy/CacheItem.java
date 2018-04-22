@@ -1,6 +1,8 @@
 package edu.truman.spicegURLs.proxy;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
@@ -133,9 +135,9 @@ public class CacheItem implements Serializable {
 	}
 	
 	private int updateCache(HttpResponse response){
-		int resCode = response.getResponseCode();
+		String resCode = response.getResponseCode();
 		
-		if (resCode != 304) {
+		if (!resCode.startsWith("304")) {
 			this.updateLastModified();
 			this.setPage(response);
 		}
@@ -167,22 +169,26 @@ public class CacheItem implements Serializable {
 			}
 			con.connect();
 			
-			System.out.println(con.getResponseCode() + ": " + url.toString());
+			String resStatus = con.getResponseCode() + " " + con.getResponseMessage();
 			
-			StringBuffer response = new StringBuffer();
-			BufferedReader in = new BufferedReader(
-			        new InputStreamReader(con.getInputStream()));
-			String inputLine;
+			System.out.println(resStatus + ": " + url);
 			
-			while ((inputLine = in.readLine()) != null) {
-				response.append(inputLine);
-				response.append("\r\n");
+			InputStream is = con.getInputStream();
+			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+			int nRead;
+			byte[] data = new byte[16384];
+
+			while ((nRead = is.read(data, 0, data.length)) != -1) {
+				buffer.write(data, 0, nRead);
 			}
-			in.close();
-			
+
+			buffer.flush();
+
 			return new HttpResponse(
-					con.getResponseCode(),  
-					response.toString());
+					resStatus, 
+					con.getHeaderFields(),
+					buffer.toByteArray());	
 		} catch (Exception e) {
 			System.err.println(e);
 			e.printStackTrace(System.out);

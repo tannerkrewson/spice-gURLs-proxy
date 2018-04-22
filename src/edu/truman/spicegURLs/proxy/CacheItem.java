@@ -163,6 +163,7 @@ public class CacheItem implements Serializable {
 	 */
 	private HttpResponse getResponseFromURL (URL url, Date ims) {
 		try {
+			// sends a request to the given url
 			HttpURLConnection con = (HttpURLConnection)url.openConnection();
 			con.setRequestMethod("GET");
 			if (ims != null) {
@@ -170,31 +171,36 @@ public class CacheItem implements Serializable {
 			}
 			con.connect();
 			
+			// parses and prints the response status to the console
 			String resStatus = con.getResponseCode() + " " + con.getResponseMessage();
-			
 			System.out.println(resStatus + ": " + url);
 			
+			// if the response was not okay, jump to the catch
 			if (con.getResponseCode() != 200) {
 				throw new IOException(resStatus);
 			}
 			
+			// read in the response as a byte array
 			InputStream is = con.getInputStream();
-			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
+			ByteArrayOutputStream responseData = new ByteArrayOutputStream();
 			int nRead;
-			byte[] data = new byte[16384];
-
-			while ((nRead = is.read(data, 0, data.length)) != -1) {
-				buffer.write(data, 0, nRead);
+			byte[] buffer = new byte[16384];
+			while ((nRead = is.read(buffer, 0, buffer.length)) != -1) {
+				responseData.write(buffer, 0, nRead);
 			}
+			responseData.flush();
 
-			buffer.flush();
-
+			// construct an http response and return it
 			return new HttpResponse(
 					resStatus, 
 					con.getHeaderFields(),
-					buffer.toByteArray());	
+					responseData.toByteArray()
+			);
+			
 		} catch (IOException e) {
+			// constructs an http response with the error code, 
+			// and does not include any data, because error responses
+			// won't have any data.
 			return new HttpResponse(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace(System.out);

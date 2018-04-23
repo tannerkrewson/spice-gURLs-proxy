@@ -10,7 +10,7 @@ import edu.truman.spicegURLs.proxy.Proxy;
  * @author Brandon Heisserer
  * @author Tanner Krewson
  * @author Carl Yarwood
- * @version 17 April 2018
+ * @version 22 April 2018
  */
 public class Main {
 	
@@ -20,7 +20,8 @@ public class Main {
 		Thread t = new Thread(new Proxy(PORT));
 		t.start();
 		
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        BufferedReader reader = 
+        		new BufferedReader(new InputStreamReader(System.in));
 		do {
 			System.out.println("Enter \"exit\" to terminate the proxy.");
 		} while (!reader.readLine().trim().equals("exit"));

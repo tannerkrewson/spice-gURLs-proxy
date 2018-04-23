@@ -7,7 +7,7 @@ import java.net.*;
  * @author Brandon Heisserer
  * @author Tanner Krewson
  * @author Carl Yarwood
- * @version 17 April 2018
+ * @version 22 April 2018
  */
 public class Proxy implements Runnable {
 	
@@ -28,14 +28,16 @@ public class Proxy implements Runnable {
 	 * @see java.lang.Runnable#run()
 	 */
 	public void run () {
-        System.out.println("Listening for connection on port " + this.port + " ....");
+        System.out.println("Listening for connection on port " + 
+        		this.port + " ....");
         
         cache = new Cache();
         
         try {
         	this.server = new ServerSocket(this.port);
 			while (true) {
-            	Thread t = new Thread(new ProxySession(server.accept(), cache));
+            	Thread t = 
+            		new Thread(new ProxySession(server.accept(), cache));
             	t.start();
 			}
 		} catch (Exception e) {

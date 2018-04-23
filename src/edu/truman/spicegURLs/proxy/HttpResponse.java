@@ -5,7 +5,11 @@ import java.util.*;
 
 /**
  * Stores the status code, headers, and data of an HTTP response.
- * @author tanne
+ * @author Brandon Crane
+ * @author Brandon Heisserer
+ * @author Tanner Krewson
+ * @author Carl Yarwood
+ * @version 22 April 2017
  */
 public class HttpResponse implements Serializable {
 	
@@ -23,12 +27,14 @@ public class HttpResponse implements Serializable {
 	}
 	
 	/**
-	 * Constructs an HTTP response with a status code, headers, and the data payload.
+	 * Constructs an HTTP response with a status code, headers, 
+	 * and the data payload.
 	 * @param code HTTP status code
 	 * @param headers HTTP response headers
 	 * @param response byte[] of any kind of data
 	 */
-	public HttpResponse(String code, Map<String, List<String>> headers, byte[] response) {
+	public HttpResponse(String code, Map<String, 
+			List<String>> headers, byte[] response) {
 		this.code = code;
 		this.headers = headers;
 		this.content = response;
@@ -62,7 +68,8 @@ public class HttpResponse implements Serializable {
 			sb.append(headers.get("Content-Type").get(0));
 			sb.append("\r\n");
 			
-			// any other headers could be appended here in the same format as above
+			// any other headers could be appended here in the same 
+			// format as above
 		}
 		sb.append("\r\n");
 		

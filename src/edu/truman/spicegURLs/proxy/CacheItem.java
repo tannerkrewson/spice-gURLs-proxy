@@ -14,12 +14,12 @@ import java.awt.event.*;
 
 /**
  * An object which keeps track of cache information and automatically
- * self-terminates after a given period of time.
+ * updates after a given period of time.
  * @author Brandon Crane
  * @author Brandon Heisserer
  * @author Tanner Krewson
  * @author Carl Yarwood
- * @version 17 April 2017
+ * @version 22 April 2017
  */
 public class CacheItem implements Serializable {
 	
@@ -38,8 +38,9 @@ public class CacheItem implements Serializable {
 		this.lastModified = new Date();
 		initTimer();
 	}
+	
 	/**
-	 * defines and initializes update timer for Cache Item object
+	 * Defines and initializes update timer for Cache Item object
 	 */
 	public void initTimer(){
 		this.updater = new Timer(30*1000, new ActionListener (){
@@ -56,14 +57,14 @@ public class CacheItem implements Serializable {
 	}
 	
 	/**
-	 * Start the timer that checks to see if the page has been updated.
+	 * Start the timer for cache item expiration
 	 */
 	private void startTimer(){
 		updater.start();
 	}
 
 	/**
-	 * Gets request URL
+	 * Gets request URL 
 	 * @return request
 	 */
 	public URL getRequest() {
@@ -125,24 +126,40 @@ public class CacheItem implements Serializable {
 		return false;
 	}
 	
+	/**
+	 * Requests the web page from the web server without
+	 * asking for a last-modified date and time. 
+	 * It then caches this response.  
+	 */
 	public void requestInitialPage () {
 		HttpResponse response = getResponseFromURL(this.request, null);
 		updateCache(response);
 	}
 	
+	/**
+	 * Requests the web page from the web server using the 
+	 * if-modified-since date. It then caches this response 
+	 * if the web server responds with a page more recent than
+	 * the one located in the cache. 
+	 */
 	public void requestUpdatedPage () {
-		HttpResponse response = getResponseFromURL(this.request, this.lastModified);
+		HttpResponse response = 
+				getResponseFromURL(this.request, this.lastModified);
 		updateCache(response);
 	}
 	
-	private int updateCache(HttpResponse response){
+	/**
+	 * Places the response from the web server into the cache
+	 * if the web page has been modified.
+	 * @param response the web page delivered from the web server to this proxy
+	 */
+	private void updateCache(HttpResponse response){
 		String resCode = response.getResponseCode();
 		
 		if (!resCode.startsWith("304")) {
 			this.updateLastModified();
 			this.setPage(response);
 		}
-		return 0;
 	}
 	
 	/**
@@ -159,7 +176,6 @@ public class CacheItem implements Serializable {
 	 * @param url the URL to send a GET request to
 	 * @param ims the if-modified-since time
 	 * @return the result of the request
-	 * @throws Exception
 	 */
 	private HttpResponse getResponseFromURL (URL url, Date ims) {
 		try {
@@ -172,7 +188,8 @@ public class CacheItem implements Serializable {
 			con.connect();
 			
 			// parses and prints the response status to the console
-			String resStatus = con.getResponseCode() + " " + con.getResponseMessage();
+			String resStatus = 
+					con.getResponseCode() + " " + con.getResponseMessage();
 			System.out.println(resStatus + ": " + url);
 			
 			// if the response was not okay, jump to the catch

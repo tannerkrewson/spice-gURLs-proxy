@@ -39,7 +39,9 @@ public class Cache {
 				CacheStore.get(key).requestUpdatedPage();
 			}
 		} catch (Exception e) {
-			System.err.println("Cache either does not exist or could not be processed\n creating a new Cache");
+			String errMess = "Cache either does not exist or could not";
+			errMess += "be processed\ncreating a new Cache";
+			System.err.println(errMess);
 			CacheStore = new HashMap<String,CacheItem>();
 		}
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -86,7 +88,8 @@ public class Cache {
 	 */
 	public void shutDown () {
 		try {
-			FileOutputStream foe = new FileOutputStream("hashcache.ser", false);
+			FileOutputStream foe = new FileOutputStream("hashcache.ser",
+					false);
 			ObjectOutputStream oos = new ObjectOutputStream(foe);
 			oos.writeObject(CacheStore);
 			oos.close();

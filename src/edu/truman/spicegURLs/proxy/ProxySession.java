@@ -32,7 +32,7 @@ public class ProxySession implements Runnable {
 	 * Looks into the connection and returns the HTTP header
 	 * as a String array, split on spaces.
 	 * @return string array of the parts of the header
-	 * @throws Exception
+	 * @throws IOException if the request is not a GET request
 	 */
 	private String[] getHeaderOfRequest() throws IOException {
 		BufferedReader inStream = new 
@@ -54,7 +54,6 @@ public class ProxySession implements Runnable {
 	 * Gets and validates the URL out of an HTTP request
 	 * @param req an HTTP request header, split on spaces
 	 * @return the URL from the request
-	 * @throws FileNotFoundException request doesn't start with /proxy/
 	 * @throws IOException URL from request is malformed
 	 */
 	private URL getURLFromRequest(String[] req) throws IOException {
@@ -83,7 +82,7 @@ public class ProxySession implements Runnable {
 	 * Send a response to our client with the given code and no further
 	 * content.
 	 * @param code HTTP response code
-	 * @throws Exception
+	 * @throws Exception if sending does not work
 	 */
 	private void sendResponse(String code) throws Exception {
 		sendResponse(new HttpResponse(code));
@@ -92,9 +91,8 @@ public class ProxySession implements Runnable {
 	/**
 	 * Send a response to our client with the given code and given response 
 	 * attached.
-	 * @param code HTTP response code
 	 * @param response HTML or things to send back
-	 * @throws Exception
+	 * @throws Exception if sending does not work
 	 */
 	private void sendResponse(HttpResponse response) throws Exception {
 		client.getOutputStream().write(response.getRawResponse());

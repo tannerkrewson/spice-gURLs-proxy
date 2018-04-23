@@ -1,13 +1,15 @@
 package edu.truman.spicegURLs.proxy;
+
 import java.util.HashMap;
 import java.io.*;
-import java.util.Map;
 import java.util.Iterator;
 import java.util.Set;
 import java.lang.Runtime;
 
 /**
- * An object which stores all of the CacheItems for the Proxy 
+ * An object which stores all of the CacheItems for the Proxy and
+ * provides accessors and mutators for the objects it holds.
+ * Additionally it saves the cached information on proper termination.
  * @author Brandon Crane
  * @author Brandon Heisserer
  * @author Tanner Krewson
@@ -20,7 +22,7 @@ public class Cache {
 	
 	/**
 	 * Creates a Cache object which checks for a stored file
-	 * and loads it if there is one.
+	 * and loads it if there is one. Otherwise it creates one.
 	 */
 	public Cache () {
 		try {

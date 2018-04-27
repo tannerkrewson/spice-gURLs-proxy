@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
+import java.util.HashMap;
+
 import javax.swing.Timer;
 import java.awt.event.*;
 
@@ -28,14 +30,15 @@ public class CacheItem implements Serializable {
 	private HttpResponse page;
 	private Date lastModified;
 	private Timer updater;
-	
+	Cache cache;
 	/**
 	 * Creates the object from a request.
 	 * @param request the page being cached
 	 */
-	public CacheItem(URL request) {
+	public CacheItem(URL request, Cache cache) {
 		this.request = request;
 		this.lastModified = new Date();
+		this.cache = cache;
 		initTimer();
 	}
 	
@@ -47,20 +50,21 @@ public class CacheItem implements Serializable {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				requestUpdatedPage();
-				updater.restart();
+				cache.removeItem(request.toString());
+				System.out.println(request.toString() +  " has been deleted from cache");
 			}
 			
 		});
 		
-		this.startTimer();
+		updater.start();
 	}
 	
 	/**
 	 * Start the timer for cache item expiration
 	 */
-	private void startTimer(){
-		updater.start();
+	public void restartTimer(){
+		updater.restart();
+		requestUpdatedPage();
 	}
 
 	/**
